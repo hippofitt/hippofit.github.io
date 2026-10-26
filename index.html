@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Questionnaire programme</title>
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-text-size-adjust:100%}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one left-aligned column of hairline-ruled sections, underline fields, square-cornered choice buttons, and a kg × reps log for the lifts. Plate blue is the only accent. */
+:root{
+  --bg:#F5F6F5; --panel:#FFFFFF; --fg:#101412; --muted:#58615B;
+  --line:#DADEDB; --line-strong:#A0A7A2; --accent:#2146D0; --warn:#B3261E;
+  --font-display:"Archivo","Arial Narrow","Helvetica Neue",Arial,sans-serif;
+  --font-body:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1110; --panel:#151917; --fg:#ECEFED; --muted:#9AA39D;
+    --line:#262B28; --line-strong:#515A54; --accent:#8CA3FF; --warn:#FF8F86;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1110; --panel:#151917; --fg:#ECEFED; --muted:#9AA39D;
+  --line:#262B28; --line-strong:#515A54; --accent:#8CA3FF; --warn:#FF8F86;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--fg);
+  font:400 17px/1.5 var(--font-body);
+  padding-block:0 72px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.page{max-width:640px;margin:0 auto}
+
+/* progress bar */
+.bar{
+  position:sticky; top:env(safe-area-inset-top,0px); z-index:5;
+  display:flex; justify-content:space-between; align-items:baseline; gap:12px;
+  padding-block:14px 11px; background:var(--bg);
+  border-bottom:1px solid var(--line);
+  font:500 12px var(--font-mono); letter-spacing:.05em; text-transform:uppercase; color:var(--muted);
+}
+.bar-count{color:var(--fg);font-variant-numeric:tabular-nums}
+.bar-fill{position:absolute;left:0;bottom:-1px;height:2px;width:0;background:var(--accent);transition:width .2s}
+
+/* intro */
+.intro{padding-block:44px 36px}
+.eyebrow{margin:0 0 18px;font:500 12px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+h1{
+  margin:0 0 24px; font-family:var(--font-display); font-weight:800;
+  font-size:clamp(44px,13vw,80px); line-height:.92; font-stretch:62%;
+  text-transform:uppercase; text-wrap:balance; overflow-wrap:anywhere;
+}
+.lead{margin:0 0 14px;font-size:19px;line-height:1.45;max-width:34em}
+.note{margin:0;color:var(--muted);font-size:14px;max-width:44em}
+
+/* sections */
+.sec{padding-block:36px 12px;border-top:1px solid var(--line)}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:22px}
+.sec-n{font:500 12px var(--font-mono);letter-spacing:.06em;color:var(--accent)}
+.sec-title{
+  margin:0; font-family:var(--font-display); font-weight:800; font-size:32px; line-height:1;
+  font-stretch:68%; text-transform:uppercase; letter-spacing:.01em; text-wrap:balance;
+}
+.sec-lead{margin:-6px 0 24px;color:var(--muted);font-size:15px;max-width:40em}
+
+/* questions */
+.q{margin:0 0 30px;padding:0;border:0;min-width:0}
+.ql{display:block;width:100%;padding:0;margin:0 0 10px;font-weight:600;font-size:16px;line-height:1.35}
+.opt{margin-left:8px;font:400 11px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.hint{margin:-4px 0 12px;color:var(--muted);font-size:14px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.row>.q{min-width:0}
+
+.field{display:flex;align-items:baseline;gap:8px;border-bottom:1px solid var(--line-strong)}
+.field:focus-within{border-bottom-color:var(--accent);box-shadow:0 1px 0 0 var(--accent)}
+.field input,.field textarea{
+  flex:1; min-width:0; width:100%; margin:0; padding:10px 0;
+  border:0; border-radius:0; outline:0; background:transparent; color:inherit;
+  font:400 17px/1.45 var(--font-body);
+}
+.field textarea{resize:none;min-height:3.4em;field-sizing:content}
+.field input::placeholder,.field textarea::placeholder,.lift input::placeholder{color:var(--muted);opacity:.75}
+.unit{font:400 13px var(--font-mono);color:var(--muted)}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips label{position:relative;display:block}
+.chips input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.chips span{
+  display:block; min-height:44px; padding:11px 14px;
+  border:1px solid var(--line-strong); border-radius:2px;
+  font-size:15px; line-height:1.2; transition:background .12s,color .12s,border-color .12s;
+}
+.chips input:checked+span{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.chips input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+@media (hover:hover){.chips label:hover span{border-color:var(--fg)}}
+
+.detail{margin-top:16px}
+.sub{display:block;margin-bottom:2px;font:500 11px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+.q.missing .ql{color:var(--warn)}
+.q.missing .field{border-bottom-color:var(--warn)}
+.q.missing .chips span{border-color:var(--warn)}
+
+/* lifts log */
+.lift-head,.lift{display:grid;grid-template-columns:minmax(0,1fr) 72px 72px;gap:12px;align-items:center}
+.lift-head{padding-bottom:6px;border-bottom:1px solid var(--line);font:500 11px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.lift-head span+span,.lift-head span+span+span{text-align:right}
+.lift{border-bottom:1px solid var(--line)}
+.lift-name{font-size:16px;line-height:1.3;padding-block:10px}
+.lift input{
+  width:100%; padding:12px 0; margin:0; border:0; border-bottom:2px solid transparent; border-radius:0; outline:0;
+  background:transparent; color:inherit; text-align:right; font:500 16px var(--font-mono);
+}
+.lift input:focus{border-bottom-color:var(--accent)}
+
+/* warning */
+.warn{margin:-6px 0 30px;padding:12px 14px;border:1px solid var(--warn);border-radius:2px;color:var(--warn);font-size:15px}
+
+/* confirmation + send */
+.check{display:flex;gap:12px;align-items:flex-start;padding:10px 0;font-size:16px;line-height:1.4;cursor:pointer}
+.check input{flex:none;width:22px;height:22px;margin:1px 0 0;accent-color:var(--accent)}
+.send{margin-top:8px}
+.btn{
+  display:block; width:100%; min-height:54px; padding:16px 22px; margin:0;
+  border:1px solid var(--fg); border-radius:2px; background:var(--fg); color:var(--bg);
+  font:600 16px var(--font-body); letter-spacing:.01em; cursor:pointer;
+}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.msg{min-height:1.5em;margin:14px 0 0;font:500 13px/1.5 var(--font-mono)}
+.msg.bad{color:var(--warn)}
+.msg.ok{color:var(--accent)}
+.out{
+  display:block; width:100%; height:280px; margin:10px 0 0; padding:14px;
+  border:1px solid var(--line-strong); border-radius:2px; background:var(--panel); color:var(--fg);
+  font:400 13px/1.55 var(--font-mono); resize:vertical;
+}
+.fine{margin:16px 0 0;color:var(--muted);font-size:14px}
+
+@media (prefers-reduced-motion: reduce){
+  .bar-fill,.chips span{transition:none}
+}
+</style>
+</head>
+<body>
+
+<main class="page">
+  <header class="bar">
+    <span>Questionnaire programme</span>
+    <span class="bar-count" id="count">0 / 0</span>
+    <i class="bar-fill" id="fill"></i>
+  </header>
+
+  <section class="intro">
+    <p class="eyebrow">Questionnaire · 26 questions · 5 minutes</p>
+    <h1>Ton<br>programme</h1>
+    <p class="lead">Réponds avec précision : ton programme est construit uniquement à partir de ces réponses.</p>
+    <p class="note">Tes réponses sur ta santé servent seulement à choisir des exercices adaptés. Ce questionnaire ne remplace pas un avis médical. Les questions marquées « facultatif » peuvent rester vides.</p>
+  </section>
+
+  <form id="form" novalidate>
+
+    <section class="sec" id="s1">
+      <header class="sec-head"><span class="sec-n">01</span><h2 class="sec-title">Toi</h2></header>
+
+      <div class="q" data-req data-label="Prénom et nom">
+        <label class="ql" for="f-nom">Prénom et nom</label>
+        <div class="field"><input id="f-nom" type="text" autocomplete="name"></div>
+      </div>
+
+      <div class="q" data-req data-label="Date de naissance" id="q-dob">
+        <label class="ql" for="f-dob">Date de naissance</label>
+        <div class="field"><input id="f-dob" type="date" autocomplete="bday"></div>
+      </div>
+
+      <div class="q" data-req data-label="Parent ou tuteur" id="q-parent" hidden>
+        <label class="ql" for="f-parent">Tu as moins de 18 ans : nom et contact d’un parent ou tuteur qui est d’accord</label>
+        <div class="field"><input id="f-parent" type="text"></div>
+      </div>
+
+      <div class="q" data-req data-label="E-mail">
+        <label class="ql" for="f-email">E-mail</label>
+        <p class="hint">C’est là que je t’envoie ton programme.</p>
+        <div class="field"><input id="f-email" type="email" inputmode="email" autocomplete="email"></div>
+      </div>
+    </section>
+
+    <section class="sec" id="s2">
+      <header class="sec-head"><span class="sec-n">02</span><h2 class="sec-title">Objectif</h2></header>
+
+      <fieldset class="q" data-req data-label="Objectif principal">
+        <legend class="ql">Ton objectif principal</legend>
+        <div class="chips">
+          <label><input type="radio" name="obj" value="Prise de muscle"><span>Prise de muscle</span></label>
+          <label><input type="radio" name="obj" value="Perte de gras"><span>Perte de gras</span></label>
+          <label><input type="radio" name="obj" value="Recomposition"><span>Recomposition</span></label>
+          <label><input type="radio" name="obj" value="Force"><span>Force</span></label>
+          <label><input type="radio" name="obj" value="Remise en forme"><span>Remise en forme</span></label>
+          <label><input type="radio" name="obj" value="Autre"><span>Autre</span></label>
+        </div>
+      </fieldset>
+
+      <div class="q" data-req data-label="Objectif en une phrase">
+        <label class="ql" for="f-phrase">Ton objectif en une phrase</label>
+        <div class="field"><textarea id="f-phrase" rows="2" placeholder="Prendre 5 kg, des épaules plus larges, reprendre après une blessure…"></textarea></div>
+      </div>
+
+      <div class="q" data-label="Muscles à prioriser">
+        <label class="ql" for="f-prio">Muscles à prioriser, trois maximum<span class="opt">facultatif</span></label>
+        <div class="field"><input id="f-prio" type="text" placeholder="Dos, épaules, bras…"></div>
+      </div>
+    </section>
+
+    <section class="sec" id="s3">
+      <header class="sec-head"><span class="sec-n">03</span><h2 class="sec-title">Mesures</h2></header>
+      <div class="row">
+        <div class="q" data-req data-label="Taille">
+          <label class="ql" for="f-taille">Taille</label>
+          <div class="field"><input id="f-taille" type="number" inputmode="numeric" min="100" max="250" data-unit="cm"><span class="unit">cm</span></div>
+        </div>
+        <div class="q" data-req data-label="Poids actuel">
+          <label class="ql" for="f-poids">Poids actuel</label>
+          <div class="field"><input id="f-poids" type="number" inputmode="decimal" step="0.1" min="30" max="250" data-unit="kg"><span class="unit">kg</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" id="s4">
+      <header class="sec-head"><span class="sec-n">04</span><h2 class="sec-title">Niveau</h2></header>
+
+      <fieldset class="q" data-req data-label="Ancienneté en musculation">
+        <legend class="ql">Depuis combien de temps t’entraînes-tu régulièrement en musculation ?</legend>
+        <div class="chips">
+          <label><input type="radio" name="anc" value="Jamais"><span>Jamais</span></label>
+          <label><input type="radio" name="anc" value="Moins de 6 mois"><span>Moins de 6 mois</span></label>
+          <label><input type="radio" name="anc" value="6 à 24 mois"><span>6 à 24 mois</span></label>
+          <label><input type="radio" name="anc" value="2 à 5 ans"><span>2 à 5 ans</span></label>
+          <label><input type="radio" name="anc" value="Plus de 5 ans"><span>Plus de 5 ans</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="q" data-req data-label="Séances par semaine ces 3 derniers mois">
+        <legend class="ql">Séances par semaine ces 3 derniers mois</legend>
+        <div class="chips">
+          <label><input type="radio" name="sact" value="0"><span>0</span></label>
+          <label><input type="radio" name="sact" value="1"><span>1</span></label>
+          <label><input type="radio" name="sact" value="2"><span>2</span></label>
+          <label><input type="radio" name="sact" value="3"><span>3</span></label>
+          <label><input type="radio" name="sact" value="4"><span>4</span></label>
+          <label><input type="radio" name="sact" value="5"><span>5</span></label>
+          <label><input type="radio" name="sact" value="6 ou plus"><span>6 ou plus</span></label>
+        </div>
+      </fieldset>
+
+      <div class="q" data-label="Programme actuel ou précédent">
+        <label class="ql" for="f-prog">Ton programme actuel ou précédent<span class="opt">facultatif</span></label>
+        <p class="hint">Le split, la durée, ce qui a marché ou pas.</p>
+        <div class="field"><textarea id="f-prog" rows="2"></textarea></div>
+      </div>
+
+      <div class="q lifts" data-kind="lifts" data-label="Charges actuelles">
+        <div class="ql">Tes charges actuelles</div>
+        <p class="hint">Ta meilleure série de travail récente. Laisse vide si tu ne fais pas l’exercice.</p>
+        <div class="lift-head"><span>Exercice</span><span>kg</span><span>reps</span></div>
+        <div class="lift" data-name="Développé couché"><span class="lift-name">Développé couché</span><input data-kg type="text" inputmode="decimal" placeholder="—" aria-label="Développé couché, kilos"><input data-reps type="text" inputmode="numeric" placeholder="—" aria-label="Développé couché, répétitions"></div>
+        <div class="lift" data-name="Squat"><span class="lift-name">Squat</span><input data-kg type="text" inputmode="decimal" placeholder="—" aria-label="Squat, kilos"><input data-reps type="text" inputmode="numeric" placeholder="—" aria-label="Squat, répétitions"></div>
+        <div class="lift" data-name="Tirage vertical"><span class="lift-name">Tirage vertical</span><input data-kg type="text" inputmode="decimal" placeholder="—" aria-label="Tirage vertical, kilos"><input data-reps type="text" inputmode="numeric" placeholder="—" aria-label="Tirage vertical, répétitions"></div>
+        <div class="lift" data-name="Soulevé de terre roumain"><span class="lift-name">Soulevé de terre roumain</span><input data-kg type="text" inputmode="decimal" placeholder="—" aria-label="Soulevé de terre roumain, kilos"><input data-reps type="text" inputmode="numeric" placeholder="—" aria-label="Soulevé de terre roumain, répétitions"></div>
+        <div class="lift" data-name="Développé militaire"><span class="lift-name">Développé militaire</span><input data-kg type="text" inputmode="decimal" placeholder="—" aria-label="Développé militaire, kilos"><input data-reps type="text" inputmode="numeric" placeholder="—" aria-label="Développé militaire, répétitions"></div>
+      </div>
+
+      <fieldset class="q" data-label="Séries jusqu’à l’échec">
+        <legend class="ql">À quelle fréquence vas-tu jusqu’à l’échec ?<span class="opt">facultatif</span></legend>
+        <p class="hint">L’échec, c’est quand tu ne peux plus faire une répétition de plus.</p>
+        <div class="chips">
+          <label><input type="radio" name="echec" value="Jamais"><span>Jamais</span></label>
+          <label><input type="radio" name="echec" value="Parfois"><span>Parfois</span></label>
+          <label><input type="radio" name="echec" value="Souvent"><span>Souvent</span></label>
+          <label><input type="radio" name="echec" value="Je ne sais pas"><span>Je ne sais pas</span></label>
+        </div>
+      </fieldset>
+
+      <div class="q" data-label="Exercices aimés et détestés">
+        <label class="ql" for="f-gouts">Les exercices que tu adores et ceux que tu détestes<span class="opt">facultatif</span></label>
+        <div class="field"><textarea id="f-gouts" rows="2"></textarea></div>
+      </div>
+    </section>
+
+    <section class="sec" id="s5">
+      <header class="sec-head"><span class="sec-n">05</span><h2 class="sec-title">Disponibilité</h2></header>
+
+      <fieldset class="q" data-req data-label="Séances par semaine possibles">
+        <legend class="ql">Séances par semaine que tu peux vraiment tenir</legend>
+        <div class="chips">
+          <label><input type="radio" name="spos" value="2"><span>2</span></label>
+          <label><input type="radio" name="spos" value="3"><span>3</span></label>
+          <label><input type="radio" name="spos" value="4"><span>4</span></label>
+          <label><input type="radio" name="spos" value="5"><span>5</span></label>
+          <label><input type="radio" name="spos" value="6"><span>6</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="q" data-req data-label="Durée maximale d’une séance">
+        <legend class="ql">Durée maximale d’une séance, échauffement compris</legend>
+        <div class="chips">
+          <label><input type="radio" name="duree" value="45 min"><span>45 min</span></label>
+          <label><input type="radio" name="duree" value="60 min"><span>60 min</span></label>
+          <label><input type="radio" name="duree" value="75 min"><span>75 min</span></label>
+          <label><input type="radio" name="duree" value="90 min"><span>90 min</span></label>
+          <label><input type="radio" name="duree" value="2 h ou plus"><span>2 h ou plus</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="q" data-req data-label="Lieu d’entraînement">
+        <legend class="ql">Où t’entraînes-tu ?</legend>
+        <div class="chips">
+          <label><input type="radio" name="lieu" value="Salle commerciale"><span>Salle commerciale</span></label>
+          <label><input type="radio" name="lieu" value="Salle bien équipée"><span>Salle bien équipée</span></label>
+          <label><input type="radio" name="lieu" value="Maison"><span>Maison</span></label>
+          <label><input type="radio" name="lieu" value="Mixte"><span>Mixte</span></label>
+        </div>
+      </fieldset>
+
+      <div class="q" data-label="Matériel disponible">
+        <label class="ql" for="f-matos">Matériel disponible<span class="opt">facultatif</span></label>
+        <p class="hint">Indispensable si tu t’entraînes à la maison : barres, haltères jusqu’à quel poids, poulies, machines, banc, barre de traction.</p>
+        <div class="field"><textarea id="f-matos" rows="2"></textarea></div>
+      </div>
+    </section>
+
+    <section class="sec" id="s6">
+      <header class="sec-head"><span class="sec-n">06</span><h2 class="sec-title">Santé</h2></header>
+      <p class="sec-lead">Ces questions servent à choisir des exercices sûrs pour toi. Elles ne posent aucun diagnostic.</p>
+
+      <fieldset class="q" data-req data-yes data-label="Médecin : limiter l’effort (cœur, tension)" id="q-cardio">
+        <legend class="ql">Un médecin t’a-t-il déjà conseillé de limiter ton effort (cœur, tension) ?</legend>
+        <div class="chips">
+          <label><input type="radio" name="cardio" value="Non"><span>Non</span></label>
+          <label><input type="radio" name="cardio" value="Oui"><span>Oui</span></label>
+        </div>
+        <div class="detail" hidden>
+          <label class="sub" for="d-cardio">Précise</label>
+          <div class="field"><textarea id="d-cardio" rows="2" placeholder="Ce qu’on t’a dit, depuis quand"></textarea></div>
+        </div>
+      </fieldset>
+
+      <fieldset class="q" data-req data-yes data-label="Douleur à la poitrine, malaise ou vertiges à l’effort" id="q-malaise">
+        <legend class="ql">As-tu déjà ressenti une douleur à la poitrine, un malaise ou des vertiges pendant un effort ?</legend>
+        <div class="chips">
+          <label><input type="radio" name="malaise" value="Non"><span>Non</span></label>
+          <label><input type="radio" name="malaise" value="Oui"><span>Oui</span></label>
+        </div>
+        <div class="detail" hidden>
+          <label class="sub" for="d-malaise">Précise</label>
+          <div class="field"><textarea id="d-malaise" rows="2" placeholder="Quand, à quelle fréquence"></textarea></div>
+        </div>
+      </fieldset>
+
+      <p class="warn" id="warn-med" role="note" hidden>Avec cette réponse, demande l’avis d’un médecin avant de commencer le programme.</p>
+
+      <fieldset class="q" data-req data-yes data-label="Blessure ou douleur actuelle" id="q-douleur">
+        <legend class="ql">As-tu une blessure ou une douleur actuelle ?</legend>
+        <div class="chips">
+          <label><input type="radio" name="douleur" value="Non"><span>Non</span></label>
+          <label><input type="radio" name="douleur" value="Oui"><span>Oui</span></label>
+        </div>
+        <div class="detail" hidden>
+          <label class="sub" for="d-douleur">Précise</label>
+          <div class="field"><textarea id="d-douleur" rows="2" placeholder="Zone, depuis quand, intensité de 0 à 10, ce qui la déclenche"></textarea></div>
+        </div>
+      </fieldset>
+
+      <div class="q" data-label="Blessures passées et exercices impossibles">
+        <label class="ql" for="f-passe">Tes blessures ou opérations passées, et les exercices que tu ne peux pas faire<span class="opt">facultatif</span></label>
+        <div class="field"><textarea id="f-passe" rows="2" placeholder="Laisse vide si rien à signaler"></textarea></div>
+      </div>
+
+      <div class="q" data-label="Autre condition à connaître">
+        <label class="ql" for="f-autre">Une autre condition dont je dois tenir compte<span class="opt">facultatif</span></label>
+        <div class="field"><textarea id="f-autre" rows="2" placeholder="Asthme, diabète, grossesse…"></textarea></div>
+      </div>
+    </section>
+
+    <section class="sec" id="s7">
+      <header class="sec-head"><span class="sec-n">07</span><h2 class="sec-title">Quotidien</h2></header>
+
+      <fieldset class="q" data-req data-label="Métier">
+        <legend class="ql">Ton métier est plutôt…</legend>
+        <div class="chips">
+          <label><input type="radio" name="metier" value="Assis"><span>Assis</span></label>
+          <label><input type="radio" name="metier" value="Debout"><span>Debout</span></label>
+          <label><input type="radio" name="metier" value="Physique"><span>Physique</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="q" data-req data-label="Sommeil par nuit">
+        <legend class="ql">Tes heures de sommeil par nuit, en moyenne</legend>
+        <div class="chips">
+          <label><input type="radio" name="sommeil" value="Moins de 6 h"><span>Moins de 6 h</span></label>
+          <label><input type="radio" name="sommeil" value="6 à 7 h"><span>6 à 7 h</span></label>
+          <label><input type="radio" name="sommeil" value="7 à 8 h"><span>7 à 8 h</span></label>
+          <label><input type="radio" name="sommeil" value="Plus de 8 h"><span>Plus de 8 h</span></label>
+        </div>
+      </fieldset>
+
+      <div class="q" data-label="Autres activités sportives">
+        <label class="ql" for="f-autres">Tes autres activités sportives<span class="opt">facultatif</span></label>
+        <div class="field"><input id="f-autres" type="text" placeholder="Type et durée par semaine"></div>
+      </div>
+    </section>
+
+    <section class="sec" id="s8">
+      <header class="sec-head"><span class="sec-n">08</span><h2 class="sec-title">Envoi</h2></header>
+
+      <fieldset class="q" data-req data-all data-label="Confirmation">
+        <legend class="ql">Avant d’envoyer</legend>
+        <label class="check"><input type="checkbox" value="1"><span>Je confirme que mes réponses sont exactes et complètes.</span></label>
+        <label class="check"><input type="checkbox" value="2"><span>Je comprends que ce programme ne remplace pas un avis médical et que j’arrête en cas de douleur anormale.</span></label>
+        <label class="check"><input type="checkbox" value="3"><span>J’accepte que mes réponses, y compris sur ma santé, servent à construire mon programme.</span></label>
+      </fieldset>
+
+      <div class="send">
+        <button type="button" class="btn" id="copy">Copier mes réponses</button>
+        <p class="msg" id="msg" role="status" aria-live="polite"></p>
+        <div id="out-wrap" hidden>
+          <label class="sub" for="out">Tes réponses</label>
+          <textarea class="out" id="out" readonly></textarea>
+        </div>
+        <p class="fine">Rien n’est envoyé automatiquement. Copie tes réponses, puis colle-les dans ta conversation avec moi.</p>
+      </div>
+    </section>
+
+  </form>
+</main>
+
+<script>
+(function () {
+  var form = document.getElementById("form");
+  var count = document.getElementById("count");
+  var fill = document.getElementById("fill");
+  var msg = document.getElementById("msg");
+  var out = document.getElementById("out");
+  var outWrap = document.getElementById("out-wrap");
+  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function one(sel, root) { return (root || document).querySelector(sel); }
+  function hidden(el) { return !!el.closest("[hidden]"); }
+
+  function mainValue(q) {
+    var choices = all('input[type="radio"], input[type="checkbox"]', q);
+    if (choices.length) {
+      return choices.filter(function (c) { return c.checked; }).map(function (c) { return c.value; }).join(", ");
+    }
+    var f = one("input, textarea", q);
+    if (!f) return "";
+    var v = f.value.trim();
+    if (v && f.type === "date") {
+      var p = v.split("-");
+      return p[2] + "/" + p[1] + "/" + p[0];
+    }
+    if (v && f.dataset.unit) return v + " " + f.dataset.unit;
+    return v;
+  }
+
+  function liftsValue(q) {
+    return all(".lift", q).map(function (row) {
+      var kg = one("[data-kg]", row).value.trim();
+      var reps = one("[data-reps]", row).value.trim();
+      if (!kg && !reps) return "";
+      return row.dataset.name + " : " + (kg || "?") + " kg × " + (reps || "?");
+    }).filter(Boolean).join("\n   ");
+  }
+
+  function fullValue(q) {
+    if (q.dataset.kind === "lifts") return liftsValue(q);
+    var main = mainValue(q);
+    var d = one(".detail:not([hidden]) textarea", q);
+    var detail = d ? d.value.trim() : "";
+    if (detail) return main ? main + " — " + detail : detail;
+    return main;
+  }
+
+  function isFilled(q) {
+    if (q.hasAttribute("data-all")) {
+      var boxes = all('input[type="checkbox"]', q);
+      return boxes.every(function (b) { return b.checked; });
+    }
+    return mainValue(q) !== "";
+  }
+
+  function required() {
+    return all(".q[data-req]").filter(function (q) { return !hidden(q); });
+  }
+
+  function ageOf(value) {
+    if (!value) return null;
+    var d = new Date(value + "T00:00:00");
+    if (isNaN(d.getTime())) return null;
+    var n = new Date();
+    var a = n.getFullYear() - d.getFullYear();
+    var m = n.getMonth() - d.getMonth();
+    if (m < 0 || (m === 0 && n.getDate() < d.getDate())) a--;
+    return a;
+  }
+
+  function refresh() {
+    var a = ageOf(one("#f-dob").value);
+    one("#q-parent").hidden = !(a !== null && a < 18);
+
+    all(".q[data-yes]").forEach(function (q) {
+      one(".detail", q).hidden = mainValue(q) !== "Oui";
+    });
+    var flagged = ["q-cardio", "q-malaise"].some(function (id) { return mainValue(document.getElementById(id)) === "Oui"; });
+    document.getElementById("warn-med").hidden = !flagged;
+
+    var qs = required();
+    var done = qs.filter(isFilled).length;
+    count.textContent = done + " / " + qs.length;
+    fill.style.width = (qs.length ? (done / qs.length) * 100 : 0) + "%";
+  }
+
+  function build() {
+    var lines = ["QUESTIONNAIRE PROGRAMME", "Rempli le " + new Date().toLocaleDateString("fr-FR"), ""];
+    all("section.sec", form).forEach(function (sec) {
+      var title = one(".sec-title", sec).textContent.trim().toUpperCase();
+      var items = [];
+      all(".q", sec).forEach(function (q) {
+        if (hidden(q) || q.hasAttribute("data-all")) return;
+        var v = fullValue(q);
+        if (!v) return;
+        var label = q.dataset.label;
+        items.push(v.indexOf("\n") > -1 ? label + " :\n   " + v : label + " : " + v);
+      });
+      if (items.length) {
+        lines.push("— " + title);
+        items.forEach(function (i) { lines.push(i); });
+        lines.push("");
+      }
+    });
+    lines.push("Je confirme mes réponses et j’accepte qu’elles servent à construire mon programme.");
+    return lines.join("\n");
+  }
+
+  form.addEventListener("submit", function (e) { e.preventDefault(); });
+  form.addEventListener("input", function (e) {
+    var q = e.target.closest(".q");
+    if (q) q.classList.remove("missing");
+    refresh();
+  });
+  form.addEventListener("change", function (e) {
+    var q = e.target.closest(".q");
+    if (q) q.classList.remove("missing");
+    refresh();
+  });
+
+  document.getElementById("copy").addEventListener("click", function () {
+    var missing = required().filter(function (q) { return !isFilled(q); });
+    all(".q.missing").forEach(function (q) { q.classList.remove("missing"); });
+    if (missing.length) {
+      missing.forEach(function (q) { q.classList.add("missing"); });
+      msg.className = "msg bad";
+      msg.textContent = missing.length > 1
+        ? missing.length + " réponses manquantes, signalées en rouge."
+        : "1 réponse manquante, signalée en rouge.";
+      missing[0].scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "center" });
+      return;
+    }
+    var text = build();
+    out.value = text;
+    outWrap.hidden = false;
+    var done = function () {
+      msg.className = "msg ok";
+      msg.textContent = "Réponses copiées. Colle-les dans ta conversation avec moi.";
+    };
+    var fallback = function () {
+      out.focus();
+      out.select();
+      msg.className = "msg ok";
+      msg.textContent = "Copie automatique impossible ici : le texte ci-dessous est sélectionné, copie-le à la main.";
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, fallback);
+      } else {
+        fallback();
+      }
+    } catch (err) {
+      fallback();
+    }
+  });
+
+  refresh();
+})();
+</script>
+
+</body>
+</html>
